@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.vsb.pvbps.project.form.controller.FXMLController">
+    <children>
+      <VBox layoutX="76.0" layoutY="-14.0" prefHeight="200.0" prefWidth="100.0">
+         <effect>
+            <SepiaTone />
+         </effect></VBox>
+      <TextField fx:id="folderTextFiled" editable="false" layoutX="4.0" layoutY="48.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="600.0">
+         <effect>
+            <SepiaTone />
+         </effect></TextField>
+      <Button fx:id="folderChooserDialogButton" layoutX="4.0" layoutY="11.0" mnemonicParsing="false" onAction="#fileChooserDialogButton" prefHeight="25.0" prefWidth="268.0" text="Choose folder">
+         <effect>
+            <SepiaTone />
+         </effect></Button>
+      <Button fx:id="scanButton" disable="true" layoutX="328.0" layoutY="11.0" mnemonicParsing="false" onAction="#scanFolder" prefHeight="25.0" prefWidth="268.0" text="Scan">
+         <effect>
+            <SepiaTone />
+         </effect></Button>
+      <ScrollPane fitToHeight="true" layoutX="4.0" layoutY="86.0" prefViewportHeight="400.0" prefViewportWidth="600.0">
+         <content>
+            <TableView fx:id="folderTable" layoutX="4.0" layoutY="86.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleShape="false">
+               <columns>
+                  <TableColumn minWidth="300.0" prefWidth="-1.0" text="Path" />
+                  <TableColumn minWidth="200.0" prefWidth="-1.0" text="Hash" />
+                  <TableColumn minWidth="100.0" prefWidth="-1.0" text="Infected" />
+               </columns>
+               <effect>
+                  <SepiaTone />
+               </effect>
+            </TableView>
+         </content>
+      </ScrollPane>
+    </children>
+   <effect>
+      <Lighting>
+         <bumpInput>
+            <Shadow />
+         </bumpInput>
+         <light>
+            <Light.Distant />
+         </light>
+      </Lighting>
+   </effect>
+</AnchorPane>
