@@ -31,7 +31,9 @@
                <columns>
                   <TableColumn minWidth="300.0" prefWidth="-1.0" text="Path" />
                   <TableColumn minWidth="200.0" prefWidth="-1.0" text="Hash" />
+                  <TableColumn minWidth="100.0" prefWidth="-1.0" text="Scanned" />
                   <TableColumn minWidth="100.0" prefWidth="-1.0" text="Infected" />
+                  <TableColumn minWidth="100.0" prefWidth="-1.0" text="Type" />
                </columns>
                <effect>
                   <SepiaTone />

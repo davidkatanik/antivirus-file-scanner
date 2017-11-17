@@ -27,9 +27,9 @@
 			<version>3.20.1</version>
 		</dependency>
 		<dependency>
-			<groupId>me.vighnesh</groupId>
-			<artifactId>VTJAPI</artifactId>
-			<version>2.0-RELEASE</version>
+			<groupId>com.kanishka.api</groupId>
+			<artifactId>VirustotalPublicV2.0</artifactId>
+			<version>1.1.rB-SNAPSHOT</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>

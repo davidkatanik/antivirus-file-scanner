@@ -132,7 +132,9 @@ public class FXMLController implements Initializable {
 
 		folderTable.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("filePath"));
 		folderTable.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("hash"));
-		folderTable.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("infection"));
+		folderTable.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("scanned"));
+		folderTable.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("infection"));
+		folderTable.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("type"));
 
 		folderTable.setItems(data);
 	}

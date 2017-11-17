@@ -5,6 +5,7 @@
  */
 package cz.vsb.pvbps.project.scanner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,9 +19,17 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.kanishka.virustotal.dto.FileScanReport;
+import com.kanishka.virustotal.dto.VirusScanInfo;
+import com.kanishka.virustotal.exception.APIKeyNotFoundException;
+import com.kanishka.virustotal.exception.InvalidArguentsException;
+import com.kanishka.virustotal.exception.QuotaExceededException;
+import com.kanishka.virustotal.exception.UnauthorizedAccessException;
+import com.kanishka.virustotalv2.VirusTotalConfig;
+import com.kanishka.virustotalv2.VirustotalPublicV2;
+import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
+
 import cz.vsb.pvbps.project.domain.ScannerVirusResult;
-import me.vighnesh.api.virustotal.VirusTotalAPI;
-import me.vighnesh.api.virustotal.dao.FileScanReport;
 
 /**
  *
@@ -32,10 +41,15 @@ public class FileScanner {
 
 	private final static Logger LOGGER = Logger.getLogger(FileScanner.class);
 
-	private VirusTotalAPI vtapi;
+	private VirustotalPublicV2 vtapi;
 
 	public FileScanner(String APIKey) {
-		vtapi = VirusTotalAPI.configure(APIKey);
+		VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey(APIKey);
+		try {
+			vtapi = new VirustotalPublicV2Impl();
+		} catch (APIKeyNotFoundException e) {
+			LOGGER.info(e);
+		}
 	}
 
 	private List<ScannerVirusResult> scan(List<ScannerVirusResult> virusesForScan) {
@@ -44,14 +58,36 @@ public class FileScanner {
 
 		String[] array = virusMap.keySet().toArray(new String[virusMap.keySet().size()]);
 
-		List<FileScanReport> filesReport = vtapi.getFilesReport(array);
-		for (FileScanReport fileReport : filesReport) {
-			ScannerVirusResult svr = virusMap.get(fileReport.getSHA256());
+		FileScanReport[] filesReport = null;
+		try {
+			filesReport = vtapi.getScanReports(array);
+		} catch (IOException | UnauthorizedAccessException | QuotaExceededException | InvalidArguentsException e) {
+			LOGGER.info(e);
+		}
+		if (filesReport != null) {
+			int i = 0;
+			for (FileScanReport fileReport : filesReport) {
+				if (fileReport.getResponseCode() == 0) {
+					virusesForScan.get(i).setScanned(false);
+					continue;
+				} else {
+					ScannerVirusResult svr = virusMap.get(fileReport.getSha256());
+					svr.setScanned(true);
+					if (fileReport.getPositives() == null)
+						continue;
+					svr.setInfection(fileReport.getPositives() > 0 ? true : false);
 
-			if (fileReport.getPositives() == null)
-				continue;
-			svr.setInfection(fileReport.getPositives() > 0 ? true : false);
-			LOGGER.info("Scanning: " + fileReport.getSHA256() + "\n\t File: " + svr);
+					if (svr.isInfection()) {
+						svr.setType(fileReport.getScans().values().parallelStream().filter(VirusScanInfo::isDetected).findAny().get().getResult());
+					} else {
+						svr.setType("No infection");
+					}
+
+					LOGGER.info("Scanning: " + fileReport.getSha256() + "\n\t File: " + svr);
+				}
+				i++;
+			}
+
 		}
 
 		return virusesForScan;
@@ -61,7 +97,7 @@ public class FileScanner {
 
 		List<List<ScannerVirusResult>> chopped = chopped(virusesForScan, API_LIMIT_RESTRICTION);
 
-		List<List<ScannerVirusResult>> x = extracted();
+		List<List<ScannerVirusResult>> x = initLists();
 		int i = 0;
 		for (Iterator<List<ScannerVirusResult>> iterator = chopped.iterator(); iterator.hasNext();) {
 			x.get(i % API_LIMIT_RESTRICTION).addAll((Collection<? extends ScannerVirusResult>) iterator.next());
@@ -76,7 +112,7 @@ public class FileScanner {
 					LOGGER.error(e);
 				}
 
-				x = extracted();
+				x = initLists();
 			}
 			i++;
 		}
@@ -93,7 +129,7 @@ public class FileScanner {
 		return parts;
 	}
 
-	private List<List<ScannerVirusResult>> extracted() {
+	private List<List<ScannerVirusResult>> initLists() {
 		List<List<ScannerVirusResult>> x = new ArrayList<>(API_LIMIT_RESTRICTION);
 
 		for (int i = 0; i < API_LIMIT_RESTRICTION; i++) {
@@ -106,7 +142,7 @@ public class FileScanner {
 
 		List<CompletableFuture<List<ScannerVirusResult>>> pageContentFutures = virusesForScan.stream().filter(x -> !x.isEmpty()).map(data -> doCall(data)).collect(Collectors.toList());
 		CompletableFuture<Void> allFutures = CompletableFuture.allOf(pageContentFutures.toArray(new CompletableFuture[pageContentFutures.size()]));
-		
+
 		try {
 			allFutures.get();
 		} catch (InterruptedException | ExecutionException e) {

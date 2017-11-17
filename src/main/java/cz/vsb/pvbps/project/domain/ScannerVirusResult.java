@@ -13,6 +13,7 @@ public class ScannerVirusResult {
 
 	private String hash;
 	private boolean infection;
+	private boolean scanned;
 	private String type;
 	private String filePath;
 
@@ -57,6 +58,14 @@ public class ScannerVirusResult {
 		return filePath;
 	}
 
+	public void setScanned(boolean scanned) {
+		this.scanned = scanned;
+	}
+
+	public boolean isScanned() {
+		return scanned;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -84,7 +93,7 @@ public class ScannerVirusResult {
 
 	@Override
 	public String toString() {
-		return "ScannerVirusResult [hash=" + hash + ", infection=" + infection + ", type=" + type + ", filePath=" + filePath + "]";
+		return "ScannerVirusResult [hash=" + hash + ", infection=" + infection + ", scanned=" + scanned + ", type=" + type + ", filePath=" + filePath + "]";
 	}
 
 }

@@ -39,7 +39,7 @@ public class SQLiteConnector implements DatabaseConnector {
 			connection = DriverManager.getConnection(DATABASE_TYPE + database + ".db");
 
 			Statement statement = connection.createStatement();
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + database + " (id INTEGER PRIMARY KEY AUTOINCREMENT, filepath STRING, hash STRING, infected INTEGER);");
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS " + database + " (id INTEGER PRIMARY KEY AUTOINCREMENT, filepath STRING, hash STRING, scanned INTEGER, infected INTEGER, type STRING);");
 		} catch (SQLException ex) {
 			LOGGER.error(ex);
 			throw new DatabaseConnectorException(ex.getMessage());
@@ -50,12 +50,14 @@ public class SQLiteConnector implements DatabaseConnector {
 	@Override
 	public void insert(ScannerVirusResult virus) throws DatabaseConnectorException {
 		LOGGER.info("Inserting to DB " + virus);
-		String sql = "INSERT INTO " + database + " (filepath,hash,infected) VALUES(?,?,?)";
+		String sql = "INSERT INTO " + database + " (filepath,hash,scanned,infected,type) VALUES(?,?,?,?,?)";
 
 		try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, virus.getFilePath());
 			pstmt.setString(2, virus.getHash());
-			pstmt.setInt(3, virus.isInfection() ? 1 : 0);
+			pstmt.setInt(3, virus.isScanned() ? 1 : 0);
+			pstmt.setInt(4, virus.isInfection() ? 1 : 0);
+			pstmt.setString(5, virus.getType());
 			pstmt.executeUpdate();
 		} catch (SQLException ex) {
 			LOGGER.error(ex);
@@ -93,7 +95,9 @@ public class SQLiteConnector implements DatabaseConnector {
 
 				result.setFilePath(rs.getString(2));
 				result.setHash(rs.getString(3));
-				result.setInfection(rs.getInt(4) == 1);
+				result.setScanned(rs.getInt(4) == 1);
+				result.setInfection(rs.getInt(5) == 1);
+				result.setType(rs.getString(6));
 
 				rs.close();
 				LOGGER.info("Virus found " + result);
