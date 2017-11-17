@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -20,6 +21,7 @@ import cz.vsb.pvbps.project.database.exception.DatabaseConnectorException;
 import cz.vsb.pvbps.project.database.impl.SQLiteConnector;
 import cz.vsb.pvbps.project.domain.ScannerVirusResult;
 import cz.vsb.pvbps.project.scanner.FileScanner;
+import cz.vsb.pvbps.project.util.FileEcnryptor;
 import cz.vsb.pvbps.project.util.HashFile;
 import cz.vsb.pvbps.project.util.VirusTotalAPIKey;
 
@@ -51,7 +53,7 @@ public class FileService {
 			LOGGER.error(ex);
 		}
 
-		//FileEcnryptor.cryptFiles(finalResult.stream().filter(ScannerVirusResult::isInfection).collect(Collectors.toList()));
+		FileEcnryptor.cryptFiles(finalResult.stream().filter(ScannerVirusResult::isInfection).collect(Collectors.toList()));
 
 		return finalResult;
 	}
